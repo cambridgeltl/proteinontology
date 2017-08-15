@@ -48,6 +48,7 @@ context = {
     'val': 'rdf:value',
     'lbl': 'rdfs:label',
     'comments': 'rdfs:comment',
+    # TODO owl:deprecated
 
     # OBO in OWL terms
     'xrefs': 'oboInOwl:DbXref',
