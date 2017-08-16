@@ -47,8 +47,10 @@ context = {
     'obj': { '@id': 'rdf:object', '@type': '@id' },
     'val': 'rdf:value',
     'lbl': 'rdfs:label',
+
+    # RDF/OWL terms
     'comments': 'rdfs:comment',
-    # TODO owl:deprecated
+    'deprecated': 'owl:deprecated',
 
     # OBO in OWL terms
     'xrefs': 'oboInOwl:DbXref',
@@ -107,8 +109,8 @@ def pretty_dumps(obj):
 
 def _relativize(obj, iri_terms, base):
     # relativize() implementation
-    if isinstance(obj, string_types):
-        pass
+    if isinstance(obj, (string_types, int, float, bool)):
+        pass    # "primitive"
     elif isinstance(obj, list):
         for o in obj:
             _relativize(o, iri_terms, base)
