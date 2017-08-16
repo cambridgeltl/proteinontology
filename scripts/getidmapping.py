@@ -159,7 +159,7 @@ def process_node(node, graph, options):
     if options.generalize:
         node = generalize_to_gene(node, graph, options)
     for uid in uids:
-        print('{}\tPRO\t{}'.format(uid, node)) # node['id']))
+        print('{}\tPRO\t{}'.format(uid, node['id']))
 
 
 class OboGraphNode(dict):
