@@ -9,7 +9,7 @@ from __future__ import print_function
 import sys
 import json
 
-from logging import warn
+from logging import info, warn
 
 
 def argparser():
@@ -37,6 +37,18 @@ def is_proteinontology_node(node):
     return id_.startswith('PR:')
 
 
+def is_deprecated(node):
+    meta = get_meta(node)
+    return meta.get('deprecated') is True
+
+
+def get_meta(node):
+    metas = assure_list(node['meta'])
+    if len(metas) != 1:
+        raise FormatError('expected one meta, got {}'.format(len(metas)))
+    return metas[0]
+
+
 def get_xrefs(meta):
     if 'xrefs' not in meta:
         return []
@@ -56,10 +68,7 @@ def uniprot_ids(ids):
 
 
 def process_node(node):
-    metas = assure_list(node['meta'])
-    if len(metas) != 1:
-        raise FormatError('expected one meta, got {}'.format(len(metas)))
-    meta = metas[0]
+    meta = get_meta(node)
     xrefs = get_xrefs(meta)
     uids = uniprot_ids(xrefs)
     if len(uids) > 1:
@@ -72,7 +81,11 @@ def process_graph(graph):
     nodes = assure_list(graph['nodes'])
     for node in nodes:
         if not is_proteinontology_node(node):
-            continue    # skip imported from other ontologies
+            info('skipping non-PRO node: {}'.format(node['id']))
+            continue
+        if is_deprecated(node):
+            info('skipping deprecated: {}'.format(node['id']))
+            continue
         process_node(node)
 
 
