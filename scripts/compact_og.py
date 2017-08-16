@@ -83,6 +83,9 @@ context.update({
     'NCBITaxon': 'http://purl.obolibrary.org/obo/NCBITaxon_',
     'GO': 'http://purl.obolibrary.org/obo/GO_',
     'PR': 'http://purl.obolibrary.org/obo/PR_',
+    'SO': 'http://purl.obolibrary.org/obo/SO_',
+    'NCBIGENE': 'http://purl.obolibrary.org/obo/NCBIGene_',
+    'HGNC': 'http://purl.obolibrary.org/obo/HGNC_',
 })
 
 # Ontology vocabularies (TODO: reconsider prefixes?)
