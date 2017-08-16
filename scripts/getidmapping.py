@@ -15,6 +15,8 @@ from logging import info, warn
 def argparser():
     import argparse
     ap = argparse.ArgumentParser()
+    ap.add_argument('-d', '--include-deprecated', default=False,
+                    action='store_true', help='Include deprecated terms')
     ap.add_argument('files', metavar='FILE', nargs='+',
                     help='Input PubTator files')
     return ap
@@ -67,7 +69,7 @@ def uniprot_ids(ids):
     return filtered
 
 
-def process_node(node):
+def process_node(node, options):
     meta = get_meta(node)
     xrefs = get_xrefs(meta)
     uids = uniprot_ids(xrefs)
@@ -77,30 +79,30 @@ def process_node(node):
         print('{}\tPRO\t{}'.format(uid, node['id']))
 
 
-def process_graph(graph):
+def process_graph(graph, options):
     nodes = assure_list(graph['nodes'])
     for node in nodes:
         if not is_proteinontology_node(node):
             info('skipping non-PRO node: {}'.format(node['id']))
             continue
-        if is_deprecated(node):
+        if is_deprecated(node) and not options.include_deprecated:
             info('skipping deprecated: {}'.format(node['id']))
             continue
-        process_node(node)
+        process_node(node, options)
 
 
-def process(fn):
+def process(fn, options):
     with open(fn) as f:
         data = json.load(f)
     graphs = assure_list(data['graphs'])
     for graph in graphs:
-        process_graph(graph)
+        process_graph(graph, options)
 
 
 def main(argv):
     args = argparser().parse_args(argv[1:])
     for fn in args.files:
-        process(fn)
+        process(fn, args)
 
 
 if __name__ == '__main__':
