@@ -10,7 +10,7 @@ OUTDIR="$SCRIPTDIR/../"
 set -eu
 
 for f in $(find "$INDIR" -maxdepth 1 -name '*.jsonld'); do
-    b=$(basename $f .og)
+    b=$(basename $f .jsonld)
     o="$OUTDIR/${b}-idmapping.dat"
     if [[ -s "$o" && "$o" -nt "$f" ]]; then
 	echo "Newer $o exists, skipping ..." >&2
