@@ -19,7 +19,7 @@ for url in $SOURCES; do
     if [ -e "$DATADIR/$bn" ]; then
 	echo "$DATADIR/$bn exists, skipping download." >&2
     else
-	echo "Downloading $url ..." >&2
-	wget -P "$DATADIR" "$url"
+	echo "Downloading $url to $DATADIR/$bn ..." >&2
+	wget -O "$DATADIR/$bn" "$url"
     fi
 done
