@@ -15,7 +15,7 @@ and `pr-idmapping.dat`.
 
 ## Requirements
 
-- Standard unix shell and tool (e.g. `wget`)
+- Unix shell and standard tools (e.g. `wget`)
 - Python 2.7
 - Java Development Kit (e.g. <http://openjdk.java.net>)
 - Maven (<https://maven.apache.org>)
