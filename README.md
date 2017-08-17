@@ -29,9 +29,9 @@ and `pr-idmapping.dat`.
   point to the correct location. Alternatively, a local version can
   be installed by running
 
-    git clone https://github.com/geneontology/obographs.git
-    cd obographs
-    mvn install
+      git clone https://github.com/geneontology/obographs.git
+      cd obographs
+      mvn install
 
   in the root directory of this repository.
 
