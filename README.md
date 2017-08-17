@@ -35,7 +35,7 @@ and `pr-idmapping.dat`.
 
   in the root directory of this repository.
 
-- OBO Graphs `mvn install` fails at `sign-artifacts` steps: GPG is not
+- OBO Graphs `mvn install` fails at `sign-artifacts` step: GPG is not
   set up for signing. Although the build does not complete with
   success, signing is not necessary to use OBO Graphs: if the directory
   `obographs/bin` contains the files `ogger` and `obographs.jar`, the
