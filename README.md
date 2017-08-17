@@ -10,8 +10,8 @@ and a mapping between PRO and UniProt IDs, run
 
     ./REBUILD-DATA.sh
 
-If succesful, this process generates the file `data/compacted/pr.jsonld`
-and `pr-idmapping.dat`.
+If succesful, this process generates the files `data/compacted/pr.jsonld`
+and `pr-idmapping.dat` and outputs "DONE" on completion.
 
 Note that this process is likely to take 10-15 min and may take over an
 hour to complete on some systems.
