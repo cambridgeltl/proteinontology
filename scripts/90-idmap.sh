@@ -5,9 +5,11 @@
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 INDIR="$SCRIPTDIR/../data/compacted"
-OUTDIR="$SCRIPTDIR/../"
+OUTDIR="$SCRIPTDIR/../data/idmappings"
 
 set -eu
+
+mkdir -p "$OUTDIR"
 
 for f in $(find "$INDIR" -maxdepth 1 -name '*.jsonld'); do
     b=$(basename $f .jsonld)
