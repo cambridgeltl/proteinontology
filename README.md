@@ -13,6 +13,9 @@ and a mapping between PRO and UniProt IDs, run
 If succesful, this process generates the file `data/compacted/pr.jsonld`
 and `pr-idmapping.dat`.
 
+Note that this process is likely to take 10-15 min and may take over an
+hour to complete on some systems.
+
 ## Requirements
 
 - Unix shell and standard tools (e.g. `wget`)
