@@ -14,7 +14,7 @@ set -eu
 
 if [ ! -e "$CONVERTER" ]; then
     cat <<EOF >&2
-Error: $CONVERTER not found (available from $CONVERTERURL)"
+Error: $CONVERTER not found (available from $CONVERTERURL)
 Try the following:
 
     git clone https://github.com/geneontology/obographs.git
