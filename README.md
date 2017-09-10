@@ -8,7 +8,7 @@ Tools for working with Protein Ontology (PRO) data
 To download PRO source data and generate a JSON-LD version of the data
 and a mapping between PRO and UniProt IDs, run
 
-    ./REBUILD-DATA.sh
+    ./REBUILD.sh
 
 If succesful, this process generates the files `data/compacted/pr.jsonld`
 and `pr-idmapping.dat` and outputs "DONE" on completion.
