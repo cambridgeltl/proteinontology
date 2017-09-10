@@ -18,6 +18,6 @@ for f in $(find "$INDIR" -maxdepth 1 -name '*.og'); do
 	echo "Newer $o exists, skipping ..." >&2
     else
 	echo "Compacting $f to $o..." >&2
-	python "$SCRIPTDIR/compact_og.py" "$f" > "$o"
+	python "$SCRIPTDIR/../scripts/compact_og.py" "$f" > "$o"
     fi
 done

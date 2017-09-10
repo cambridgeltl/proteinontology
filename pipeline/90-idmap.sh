@@ -18,6 +18,6 @@ for f in $(find "$INDIR" -maxdepth 1 -name '*.jsonld'); do
 	echo "Newer $o exists, skipping ..." >&2
     else
 	echo "Extracting IDs from $f to $o..." >&2
-	python "$SCRIPTDIR/getidmapping.py" -g "$f" > "$o"
+	python "$SCRIPTDIR/../scripts/getidmapping.py" -g "$f" > "$o"
     fi
 done

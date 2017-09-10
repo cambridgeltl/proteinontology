@@ -17,6 +17,6 @@ for f in $(find "$INDIR" -maxdepth 1 -name '*.obo'); do
 	echo "Newer $o exists, skipping ..." >&2
     else
 	echo "Preprocessing $f to $o ..." >&2
-	python "$SCRIPTDIR/preprocess_obo.py" "$f" > "$o"
+	python "$SCRIPTDIR/../scripts/preprocess_obo.py" "$f" > "$o"
     fi
 done
