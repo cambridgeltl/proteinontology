@@ -20,6 +20,7 @@ hour to complete on some systems.
 
 - Unix shell and standard tools (e.g. `wget`)
 - Python 2.7
+- pyld (<https://github.com/digitalbazaar/pyld>)
 - Java Development Kit (e.g. <http://openjdk.java.net>)
 - Maven (<https://maven.apache.org>)
 
