@@ -18,6 +18,8 @@ def argparser():
     ap = argparse.ArgumentParser()
     ap.add_argument('-d', '--include-deprecated', default=False,
                     action='store_true', help='Include deprecated terms')
+    ap.add_argument('-f', '--family', default=False, action='store_true',
+                    help='Generalize IDs to "Category=family" level')
     ap.add_argument('-g', '--generalize', default=False, action='store_true',
                     help='Generalize PRO IDs to "Category=gene" level')
     ap.add_argument('files', metavar='FILE', nargs='+',
@@ -122,6 +124,40 @@ def furthest_ancestors(node, graph, category):
 furthest_ancestors.cache = defaultdict(lambda: defaultdict(lambda :defaultdict(list)))
 
 
+def generalize_to_nearest(node, category, graph, options):
+    """Return nearest ancestor with given category in the graph.
+
+    If no candidates are found, return given node. If multiple are
+    found, give preference to ones further from the root.
+    """
+    generalized = nearest_ancestors(node, graph, category)
+    if not generalized:
+        info('no {} ancestors: {}'.format(category, node))
+        return node
+    elif len(generalized) == 1:
+        only = generalized[0]
+        if only['id'] == node['id']:
+            info('not generalized to {}: {}'.format(category, node))
+        else:
+            info('generalized {} to {} {}'.format(node, category, only))
+        return only
+    else:
+        assert(len(generalized)) > 1, 'internal error'
+        # Multiple candidates, filter out closer to root as "further"
+        by_depth = list(sorted((graph.min_depth(g), g) for g in generalized))
+        max_depth = by_depth[-1][0]
+        filtered = [g[1] for g in by_depth if g[0] < max_depth]
+        generalized = [g[1] for g in by_depth if g[0] == max_depth]
+        liststr = lambda l: ', '.join(str(i) for i in l)
+        if filtered:
+            info('filtered shallower generalizations for {} -> {}, kept {}'\
+                 .format(str(node), liststr(filtered), liststr(generalized)))
+        if len(generalized) > 1:
+            warn('generalized to multiple, arbitrarily taking first: {} -> {}'\
+                 .format(str(node), liststr(generalized)))
+        return generalized[0]
+
+
 def generalize_to_gene(node, graph, options):
     """Return nearest ancestor with "Category=gene" in the graph.
 
@@ -133,33 +169,15 @@ def generalize_to_gene(node, graph, options):
     PR:P02340 "cellular tumor antigen p53 (mouse)" to
     PR:000003035 "cellular tumor antigen p53".
     """
-    generalized = nearest_ancestors(node, graph, 'gene')
-    if not generalized:
-        generalized = nearest_ancestors(node, graph, 'organism-gene')
-    if not generalized:
-        info('no gene ancestors: {}'.format(node))
-        return node
-    elif len(generalized) == 1:
-        if generalized[0]['id'] == node['id']:
-            info('not generalized: {}'.format(node))
-        else:
-            info('generalized {} to {}'.format(node, generalized[0]))
-        return generalized[0]
-    else:
-        assert(len(generalized)) > 1, 'internal error'
-        # Multiple candidates, filter out closer to root as "further"
-        by_depth = list(sorted((graph.min_depth(g), g) for g in generalized))
-        max_depth = by_depth[-1][0]
-        filtered = [g[1] for g in by_depth if g[0] < max_depth]
-        generalized = [g[1] for g in by_depth if g[0] == max_depth]
-        liststr = lambda l: ', '.join(str(i) for i in l)
-        if filtered:
-            warn('filtered shallower generalizations for {} -> {}, kept {}'\
-                 .format(str(node), liststr(filtered), liststr(generalized)))
-        if len(generalized) > 1:
-            warn('generalized to multiple, arbitrarily taking first: {} -> {}'\
-                 .format(str(node), liststr(generalized)))
-        return generalized[0]
+    gen = generalize_to_nearest(node, 'gene', graph, options)
+    if gen['id'] == node['id']:
+        gen = generalize_to_nearest(node, 'organism-gene', graph, options)
+    return gen
+
+
+def generalize_to_family(node, graph, options):
+    """Return ancestor with "Category=family" in the graph."""
+    return generalize_to_nearest(node, 'family', graph, options)
 
 
 def process_node(node, graph, options):
@@ -168,8 +186,13 @@ def process_node(node, graph, options):
     uids = uniprot_ids(xrefs)
     if len(uids) > 1:
         warn('multiple UniProt IDs for {}: {}'.format(node['id'], uids))
-    if options.generalize:
+    orig, generalized = node, False
+    if options.family:
+        node = generalize_to_family(node, graph, options)
+        generalized = node is not orig
+    if options.generalize and not generalized:
         node = generalize_to_gene(node, graph, options)
+        generalized = node is not orig
     for uid in uids:
         print('{}\tPRO\t{}'.format(uid, node['id']))
 
@@ -217,8 +240,7 @@ class OboGraph(dict):
         if id_ not in self._min_depth:
             parents = self.parents(node)
             if not parents:
-                warn('root: {}'.format(id_))
-                self._min_depth[id_] = 0
+                self._min_depth[id_] = 0    # root
             else:
                 self._min_depth[id_] = 1 + min(
                     self.min_depth(p) for p in parents)
