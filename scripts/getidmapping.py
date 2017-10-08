@@ -88,7 +88,7 @@ def nearest_ancestors(node, graph, category):
     cache = nearest_ancestors.cache[id(graph)][category]
     if id_ not in cache:
         if has_category(node, category):
-            cache[id_] = [node]    # already at gene level
+            cache[id_] = [node]    # already at target level
         else:
             parents_ancestors, seen = [], set()
             for parent in graph.parents(node):
@@ -126,7 +126,8 @@ def generalize_to_gene(node, graph, options):
     """Return nearest ancestor with "Category=gene" in the graph.
 
     If no ancestor has "Category=gene", return ancestor with
-    "Category=organism-gene".
+    "Category=organism-gene". If no such ancestor is found, return
+    the given node.
 
     Maps e.g. PR:P04637 "cellular tumor antigen p53 (human)" and
     PR:P02340 "cellular tumor antigen p53 (mouse)" to
@@ -146,7 +147,18 @@ def generalize_to_gene(node, graph, options):
         return generalized[0]
     else:
         assert(len(generalized)) > 1, 'internal error'
-        warn('generalized to multiple, arbitrarily taking first: {} -> {}'.format(node['id'], ', '.join(str(g) for g in generalized)))
+        # Multiple candidates, filter out closer to root as "further"
+        by_depth = list(sorted((graph.min_depth(g), g) for g in generalized))
+        max_depth = by_depth[-1][0]
+        filtered = [g[1] for g in by_depth if g[0] < max_depth]
+        generalized = [g[1] for g in by_depth if g[0] == max_depth]
+        liststr = lambda l: ', '.join(str(i) for i in l)
+        if filtered:
+            warn('filtered shallower generalizations for {} -> {}, kept {}'\
+                 .format(str(node), liststr(filtered), liststr(generalized)))
+        if len(generalized) > 1:
+            warn('generalized to multiple, arbitrarily taking first: {} -> {}'\
+                 .format(str(node), liststr(generalized)))
         return generalized[0]
 
 
@@ -180,6 +192,7 @@ class OboGraph(dict):
         # lazy init
         self._node_by_id = None
         self._is_a = None
+        self._min_depth = {}
 
     def nodes(self):
         for node in assure_list(self.get('nodes', [])):
@@ -195,6 +208,21 @@ class OboGraph(dict):
             self._analyze()
         id_ = node['id']
         return [self.get_node(p) for p in self._is_a[id_]]
+
+    def min_depth(self, node):
+        """Return length of shortest path from node to root."""
+        if self._is_a is None:
+            self._analyze()
+        id_ = node['id']
+        if id_ not in self._min_depth:
+            parents = self.parents(node)
+            if not parents:
+                warn('root: {}'.format(id_))
+                self._min_depth[id_] = 0
+            else:
+                self._min_depth[id_] = 1 + min(
+                    self.min_depth(p) for p in parents)
+        return self._min_depth[id_]
 
     def _analyze(self):
         self._analyze_nodes()
